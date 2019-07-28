@@ -20,6 +20,7 @@
 #include <iostream>
 // #include <vector> 
 #include <mysql.h>
+#include <string>
 
 using namespace std;
 
@@ -63,13 +64,16 @@ int main(void)
     int choice;
     string variables;
     string query;
+    string start_date;
+    string end_date;
+    string musician;
     
     do
     {
         cout << endl
-        << " 1 - Start the game.\n"
-        << " 2 - Story.\n"
-        << " 3 - Help.\n"
+        << " 1 - Albums recorded in date range \n"
+        << " 2 - # of songs a musician has recorded in date range \n"
+        << " 3 - # of albums a musician participated in date range\n"
         << " 4 - Exit.\n"
         << " 5 - Start the game.\n"
         << " 6 - Story.\n"
@@ -88,13 +92,34 @@ int main(void)
         switch (choice)
         {
             case 1:
-                //code to start the game
+                cout << "Please enter start date (YYYY-MM-DD format): \n";
+                cin >> start_date;
+                cout << "Please enter end date (YYYY-MM-DD format): \n";
+                cin >> end_date;
+                query = "select Albun_Name from Album where '" + start_date + "'" + " between Album_Rec_Start and Album_Rec_End and '" + end_date + "'" + " between Album_Rec_Start and Album_Rec_End;";
+                run_query(query);
                 break;
             case 2:
-                //code to make score for this game to count how many times u win the game
+                cin.ignore();
+                cout << "Please enter musician name: \n";
+                getline(cin, musician);
+                cout << "Please enter start date (YYYY-MM-DD format): \n";
+                cin >> start_date;
+                cout << "Please enter end date (YYYY-MM-DD format): \n";
+                cin >> end_date;
+                query = "select count(Track_Musicians.Track_ID) from Track_Musicians join Track on Track.Track_ID = Track_Musicians.Track_ID  join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID where Track.Track_Date between '" + start_date +"' and '" + end_date + "' and Musician.Musician_Name = '" + musician + "' group by Track_Musicians.Track_ID";
+                run_query(query);
                 break;
             case 3:
-                //code to make option for the game
+                cin.ignore();
+                cout << "Please enter musician name: \n";
+                getline(cin, musician);
+                cout << "Please enter start date (YYYY-MM-DD format): \n";
+                cin >> start_date;
+                cout << "Please enter end date (YYYY-MM-DD format): \n";
+                cin >> end_date;
+                query = "select count(Album_Tracks.Albun_ID) from Track_Musicians join Track on Track.Track_ID = Track_Musicians.Track_ID join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID join Album_Tracks on Album_Tracks.Track_ID = Track.Track_ID where Track.Track_Date between '" + start_date + "' and '" + end_date + "' and Musician.Musician_Name = '" + musician + "'  group by Album_Tracks.Track_ID;";
+                run_query(query);
                 break;
             case 4:
                 //code to help the user like give him
