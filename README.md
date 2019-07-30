@@ -1,23 +1,42 @@
-# recording_studio
+## How to connect to Mysql using C++ in Mac Osx
 
-Download DB:
+There are 2 ways of doing that first user mysql.h file or using mysql connector
 
-1. download DB dump
-2. (import the dump)
-3. run sql server: /usr/local/mysql/support-files/mysql.server start
-4. login to mysql console: mysql -u root
-5. create database studio
-6. exit mysql console
-7. import the dump: mysql -u root -p studio < studio_backup.sql
-8. enter mysql console again and make sure all tables are in
+### Using Mysql.h
+You can check demo1.cpp file which is using mysql.h
+STEPS ARE:
 
-Run application:
+By Default g++ uses clang compiler which comes with Xcode which is not a genuine compiler so you need to reinstall to have genuine compiler for g++
+  You can check version with g++ --version
+  1. Install macports using brew
+  2. sudo port selfupdate
+  3. sudo port install gcc46
+  4. sudo port select --set gcc mp-gcc46
+  5. Now check again gcc --version it should Say (gcc (MacPorts gcc46 4.6.4_11) 4.6.4) ...
+  
 
-1. clone this repo
-2. cd into the folder
-3. make sure g++ and gcc are installed
-4. check the installation paths (which gcc, which g++)
-5. run the following (make sure to update gcc and g++ installation paths): g++ -o demo1 -I/usr/local/include -I/usr/local/include/mysql -W -lmysqlclient -L/usr/local/lib demo1.cpp
-6. double click demo1
+  Installing and running mysql
+  1. brew install mysql
+  2. g++ -o demo1 -I/usr/local/include -I/usr/local/include/mysql -W -lmysqlclient -L/usr/local/lib demo1.cpp 
+  3. Run ./demo1
 
-*In case if any change in the code -  re run step 5 and reopen demo1*
+### Using Mysql Connector CPP
+  STEP 1 - Connector
+  1. Download Mysql C++ Connector for Mac OS from here https://dev.mysql.com/downloads/connector/cpp/
+  1. Extract cppconn direcotry and mysql_connection.h, mysql_driver.h, mysql_error.h file to the root direcotry of your application
+  
+  STEP 2 - CREATE DYLIB file from cpp connector using the same compiler we are using to compile our code  
+  git clone https://github.com/mysql/mysql-connector-cpp .   
+  git checkout 1.1  
+  git tag  
+  git checkout tags/1.1.9  
+  which g++  
+  which gcc  
+  cmake -DCMAKE_C_COMPILER=/opt/local/bin/gcc -DCMAKE_CXX_COMPILER=/opt/local/bin/g++ .  
+  make  
+  make install  
+  You should find dylib files in driver director and copy those files to the same directory where your code exists  
+  
+  STEP 3 - RUNNING CODE   
+  g++ -o demo -I/usr/local/include -I/Volumes/D/www/c++ -L. -lmysqlcppconn demo.cpp  
+  ./demo  

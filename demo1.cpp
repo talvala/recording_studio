@@ -67,6 +67,7 @@ int main(void)
     string start_date;
     string end_date;
     string musician;
+    string album;
     
     do
     {
@@ -74,18 +75,19 @@ int main(void)
         << " 1 - Albums recorded in date range \n"
         << " 2 - # of songs a musician has recorded in date range \n"
         << " 3 - # of albums a musician participated in date range\n"
-        << " 4 - Exit.\n"
-        << " 5 - Start the game.\n"
-        << " 6 - Story.\n"
-        << " 7 - Help.\n"
+        << " 4 - Most popular instrument \n"
+        << " 5 - Instrument in a given album \n"
+        << " 6 - Most populaar producer in date range \n"
+        << " 7 - Most populaar manufacturer \n"
         << " 8 - # of musicians who recorded over the years \n"
-        << " 9 - Start the game.\n"
-        << " 10 - Story.\n"
-        << " 11 - Help.\n"
-        << " 12 - Exit.\n"
+        << " 9 - Musician with largest number of collaborations \n"
+        << " 10 - Most popular genre \n"
+        << " 11 - Technician that recorded the most tracks in date range \n"
+        << " 12 - First album that has been recorded \n"
         << " 13 - List of songs in more than 2 albums \n"
-        << " 14 - Story.\n"
-        << " 15 - Help.\n"
+        << " 14 - List of tehnicians that participated in an entire album \n"
+        << " 15 - Musician who recorded the most wide range of genres \n"
+        << " 16 - Exit"
         << " Enter your choice and press return: ";
         cin >> choice;
         
@@ -96,7 +98,7 @@ int main(void)
                 cin >> start_date;
                 cout << "Please enter end date (YYYY-MM-DD format): \n";
                 cin >> end_date;
-                query = "select Albun_Name from Album where '" + start_date + "'" + " between Album_Rec_Start and Album_Rec_End and '" + end_date + "'" + " between Album_Rec_Start and Album_Rec_End;";
+                query = "select Albun_Name from Album where Album_Rec_Start > '" + start_date + "' and Album_Rec_End < '" + end_date + "';";
                 run_query(query);
                 break;
             case 2:
@@ -107,7 +109,7 @@ int main(void)
                 cin >> start_date;
                 cout << "Please enter end date (YYYY-MM-DD format): \n";
                 cin >> end_date;
-                query = "select count(Track_Musicians.Track_ID) from Track_Musicians join Track on Track.Track_ID = Track_Musicians.Track_ID  join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID where Track.Track_Date between '" + start_date +"' and '" + end_date + "' and Musician.Musician_Name = '" + musician + "' group by Track_Musicians.Track_ID";
+                query = "select count(Track_Musicians.Track_ID) from Track_Musicians join Track on Track.Track_ID = Track_Musicians.Track_ID  join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID where Track.Track_Date between '" + start_date +"' and '" + end_date + "' and Musician.Musician_Name = '" + musician + "' group by Track_Musicians.Track_ID;";
                 run_query(query);
                 break;
             case 3:
@@ -122,45 +124,64 @@ int main(void)
                 run_query(query);
                 break;
             case 4:
-                //code to help the user like give him
-                //extra information about the mode and the controller
+                query = "select Instrument.Instrument_type from Musician_Instruments left join Instrument on Musician_Instruments.Instrument_ID = Instrument.Instrument_ID left join Track_Musicians on Musician_Instruments.Musician_ID = Track_Musicians.Musician_ID group by Instrument.Instrument_type order by count(Instrument.Instrument_type) desc limit 1;";
+                run_query(query);
                 break;
             case 5:
-                //code to start the game
+                cin.ignore();
+                cout << "Please enter album name: \n";
+                getline(cin, album);
+                query = "select distinct Instrument_type from Album_Tracks left join Track_Musicians on Album_Tracks.Track_ID = Track_Musicians.Track_ID left join Musician_Instruments on Track_Musicians.Musician_ID = Musician_Instruments.Musician_ID left join Instrument on Musician_Instruments.Instrument_ID = Instrument.Instrument_ID left join Album on Album_Tracks.Albun_ID = Album.Albun_ID where Albun_Name = '" + album + "' limit 1;";
+                run_query(query);
                 break;
             case 6:
-                //code to make score for this game to count how many times u win the game
+                cin.ignore();
+                cout << "Please enter start date (YYYY-MM-DD format): \n";
+                cin >> start_date;
+                cout << "Please enter end date (YYYY-MM-DD format): \n";
+                cin >> end_date;
+                query = "select Producer_Name from (Select Album_Producers.Producer_ID, Producer_Name from Album_Producers left join Album on Album_Producers.Albun_ID = Album.Albun_ID left join Producer on Album_Producers.Producer_ID = Producer.Producer_ID where  Album_Rec_Start > '" + start_date + "' and Album_Rec_End < '" + end_date + "') as b group by Producer_ID order by count(Producer_ID) limit 1;";
+                run_query(query);
                 break;
             case 7:
-                //code to make option for the game
+                query = "select Instrument.Instrument_Manufacturer from Musician_Instruments left join Instrument on Musician_Instruments.Instrument_ID = Instrument.Instrument_ID left join Track_Musicians on Musician_Instruments.Musician_ID = Track_Musicians.Musician_ID group by Instrument.Instrument_Manufacturer order by count(Instrument.Instrument_Manufacturer) desc limit 1;";
+                run_query(query);
                 break;
             case 8:
-                cout << "enter variables: \n" ;
-                cin >> variables;
-                query = "show " + variables + ";";
+                query = "select count(distinct (Track_Musicians.Musician_ID)) from Track_Musicians right join Track on Track_Musicians.Track_ID = Track.Track_ID;";
                 run_query(query);
                 break;
             case 9:
-                //code to start the game
+                query = "select Musician_name from (select Track_ID from Track_Musicians group by Track_ID order by count(Track_ID) desc limit 1 ) as b left join Track_Musicians on Track_Musicians.Track_ID = b.Track_ID left join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID limit 1;";
+                run_query(query);
                 break;
             case 10:
-                //code to make score for this game to count how many times u win the game
+                query = "select Genre_Name from (select * from Track left join Genre on Track.Genre = Genre.Genre_ID) as b group by Genre_ID order by count(Genre_ID) desc limit 1;";
+                run_query(query);
                 break;
             case 11:
-                //code to make option for the game
+                cin.ignore();
+                cout << "Please enter start date (YYYY-MM-DD format): \n";
+                cin >> start_date;
+                cout << "Please enter end date (YYYY-MM-DD format): \n";
+                cin >> end_date;
+                query = "select Technition.Technition_Name from Technition join Track on Technition.Technition_ID = Track.Technition_ID where Track_Date between '" + start_date +"' and '" + end_date +  "' group by Technition.Technition_ID order by count(Technition.Technition_ID) desc limit 1;";
+                run_query(query);
                 break;
             case 12:
-                //code to help the user like give him
-                //extra information about the mode and the controller
+                query = "select Albun_Name from Album order by Album_Rec_End asc limit 1;";
+                run_query(query);
                 break;
             case 13:
                 run_query("select Track.Track_Name, count(Album_tracks.Track_ID) as 'Track_ID_count'  from Album_Tracks  join Track on Track.Track_ID = Album_Tracks.Track_ID where 'Track_ID_count' >= '2' group by Album_Tracks.Track_ID;");
                 break;
             case 14:
-                //code to make score for this game to count how many times u win the game
+                query = "Select Technition_Name from (Select distinct count(Albun_ID), Technition_ID, Number_Of_tracks, Technition_Name from (select distinct Track.Track_ID, Track.Technition_ID, Album_Tracks.Albun_ID, Number_Of_tracks, Technition_Name from Track left join Album_Tracks on Track.Track_ID = Album_Tracks.Track_ID left join Album on Album_Tracks.Albun_ID = Album.Albun_ID left join Technition on Track.Technition_ID = Technition.Technition_ID) as b group by Albun_ID, Technition_ID Having count(Albun_ID) = Number_Of_tracks limit 1) as c;";
+                run_query(query);
                 break;
             case 15:
-                
+                query = "select Musician_Name from (select distinct Genre_ID, Track_Musicians.Musician_ID, Musician.Musician_Name from Track left join Genre on Track.Genre = Genre.Genre_ID left join Track_Musicians on Track.Track_ID = Track_Musicians.Track_ID left join Musician on Track_Musicians.Musician_ID = Musician.Musician_ID) as b group by Musician_ID order by Musician_ID desc limit 1;";
+                run_query(query);
                 break;
             case 16:
                 cout << "End of Program.\n";
